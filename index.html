@@ -735,7 +735,7 @@ footer a,footer b{color:#C9C3EC}
 const CONFIG = {
   BRAND_NAME: "TopUpMyCar",
   AFFILIATE_URL: "https://carparloan.com/?referCode=SU5EVFVNMjE0OTc0MQ==", // your CarParLoan affiliate link
-  APPEND_TRACKING: true,                            // adds sub_id + utm_* to the affiliate link (confirm CPL allows extra params)
+  APPEND_TRACKING: true,                            // passes utm_* and sub (as sub2) from your ad links to the affiliate link; false = plain link
   APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzhQ4g6Lj3iMgsTg7LAJGjxF8jnRkFtmg6TeMyRpfj6oM-29b-JxHLrbQFLzUY-2c8c/exec", // Google Apps Script web app URL
   WHATSAPP_NUMBER: "917022511599",                  // country code + number, no +
   CALL_NUMBER: "+917022511599",
@@ -935,10 +935,12 @@ const CONFIG = {
 
   function affiliateLink(){
     if (!CONFIG.APPEND_TRACKING) return CONFIG.AFFILIATE_URL;
+    // Lead ID stays in the Google Sheet only. Leads are matched with CPL by mobile number.
     // Appends to the link as written, so referCode (with its "==") is never re-encoded
-    const extra = [["sub_id", leadId]];
+    const extra = [];
     ["utm_source","utm_medium","utm_campaign","utm_content"].forEach(k => { if (src[k]) extra.push([k, src[k]]); });
     if (src.sub) extra.push(["sub2", src.sub]);
+    if (!extra.length) return CONFIG.AFFILIATE_URL;
     const sep = CONFIG.AFFILIATE_URL.includes("?") ? "&" : "?";
     return CONFIG.AFFILIATE_URL + sep + extra.map(([k,v]) => k + "=" + encodeURIComponent(v)).join("&");
   }
